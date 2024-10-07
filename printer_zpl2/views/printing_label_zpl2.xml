@@ -25,7 +25,7 @@
                         name="web_ribbon"
                         title="Archived"
                         bg_color="bg-danger"
-                        invisible="active = True"
+                        invisible="active"
                     />
                     <div class="oe_button_box" name="button_box">
                         <field name="active" invisible="1" />
@@ -116,15 +116,15 @@
                                             <field name="component_type" />
                                             <field
                                                 name="repeat"
-                                                invisible="component_type = 'zpl2_raw'"
+                                                invisible="component_type == 'zpl2_raw'"
                                             />
                                             <field
                                                 name="data_autofill"
-                                                invisible="component_type = 'qr_code'"
+                                                invisible="component_type == 'qr_code'"
                                             />
                                         </group>
                                         <group
-                                            invisible="component_type = 'zpl2_raw'"
+                                            invisible="component_type == 'zpl2_raw'"
                                         >
                                             <field name="origin_x" />
                                             <field name="origin_y" />
@@ -141,7 +141,7 @@
                                         </group>
                                     </group>
                                     <group
-                                        invisible="data_autofill = True or component_type in ('rectangle', 'diagonal', 'circle')"
+                                        invisible="data_autofill or component_type in ('rectangle', 'diagonal', 'circle')"
                                         string="Data"
                                     >
                                         <field
