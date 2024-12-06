@@ -100,6 +100,7 @@ class PrintingJob(models.Model):
             ("submission-interrupted", "Files were not received in full"),
             ("unsupported-compression", "Compressed using an unknown algorithm"),
             ("unsupported-document-format", "Unsupported format"),
+            ("cups-held-for-authentication", "Held for authentication"),
         ],
         string="State Reason",
         help="Reason for the current job state.",
