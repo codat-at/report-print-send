@@ -18,9 +18,6 @@ class PrintRecordLabel(models.TransientModel):
         comodel_name="printing.label.zpl2",
         string="Label",
         required=True,
-        domain=lambda self: [
-            ("model_id.model", "=", self.env.context.get("active_model"))
-        ],
         help="Label to print.",
     )
     active_model_id = fields.Many2one(
