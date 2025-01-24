@@ -206,7 +206,7 @@ class PrintingLabelZpl2(models.Model):
             record, page_number, page_count, label_offset_x, label_offset_y, **extra
         )
 
-        for (component, data, offset_x, offset_y) in to_print:
+        for component, data, offset_x, offset_y in to_print:
             component_offset_x = component.origin_x + offset_x
             component_offset_y = component.origin_y + offset_y
             if component.component_type == "text":
@@ -366,18 +366,26 @@ class PrintingLabelZpl2(models.Model):
 
         return label_data.output()
 
-    def print_label(self, printer, record, page_count=1, **extra):
+    def print_label(self, printer, records, page_count=1, **extra):
+        """Print a label for each record in records while only sending a single print job to the printer."""
         for label in self:
-            if record._name != label.model_id.model:
+            if records._name != label.model_id.model:
                 raise exceptions.UserError(
-                    _("This label cannot be used on {model}").format(model=record._name)
+                    _("This label cannot be used on {model}").format(
+                        model=records._name
+                    )
                 )
-            # Send the label to printer
-            label_contents = label._generate_zpl2_data(
-                record, page_count=page_count, **extra
-            )
+
+            label_contents = []
+
+            for record in records:
+                label_contents.append(
+                    label._generate_zpl2_data(record, page_count=page_count, **extra)
+                )
+
+            # Send single the label to printer
             printer.print_document(
-                report=None, content=label_contents, doc_format="raw"
+                report=None, content=b"".join(label_contents), doc_format="raw"
             )
         return True
 
