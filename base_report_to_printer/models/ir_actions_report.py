@@ -7,7 +7,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import threading
 
-from odoo import _, api, exceptions, fields, models, registry
+from odoo import _, api, exceptions, fields, models
+from odoo.orm.registry import Registry
 from odoo.tools.safe_eval import safe_eval, time
 
 REPORT_TYPES = {"qweb-pdf": "pdf", "qweb-text": "text"}
@@ -69,9 +70,9 @@ class IrActionsReport(models.Model):
         return dict(
             action=user.printing_action or "client",
             printer=user.printing_printer_id or printer_obj.get_default(),
-            tray=str(user.printer_tray_id.system_name)
-            if user.printer_tray_id
-            else False,
+            tray=(
+                str(user.printer_tray_id.system_name) if user.printer_tray_id else False
+            ),
         )
 
     def _get_report_default_print_behaviour(self):
@@ -143,7 +144,7 @@ class IrActionsReport(models.Model):
                 return
 
     def print_document_threaded(self, report_id, record_ids, data):
-        with registry(self._cr.dbname).cursor() as cr:
+        with Registry(self._cr.dbname).cursor() as cr:
             self = self.with_env(self.env(cr=cr))
             report = self.env["ir.actions.report"].browse(report_id)
             report.print_document(record_ids, data)
