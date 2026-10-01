@@ -3,7 +3,8 @@
 
 import logging
 
-from odoo import fields, models
+from odoo import fields, models, api, _
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -106,13 +107,22 @@ class PrintingJob(models.Model):
         help="Reason for the current job state.",
     )
 
-    _sql_constraints = [
-        (
-            "job_id_cups_unique",
-            "UNIQUE(job_id_cups, server_id)",
-            "The id of the job must be unique per server !",
-        )
-    ]
+    @api.constrains("job_id_cups", "server_id")
+    def _check_unique_job_id_cups(self):
+        for record in self:
+            if (
+                self.search_count(
+                    [
+                        ("job_id_cups", "=", record.job_id_cups),
+                        ("server_id", "=", record.server_id.id),
+                        ("id", "!=", record.id),
+                    ]
+                )
+                > 0
+            ):
+                raise ValidationError(
+                    _("The id of the job must be unique per server !")
+                )
 
     def action_cancel(self):
         self.ensure_one()
